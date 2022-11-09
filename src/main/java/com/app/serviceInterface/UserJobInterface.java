@@ -7,8 +7,12 @@ import org.springframework.data.domain.Page;
 
 public interface UserJobInterface {
 
-	public void candidateApplyJob(UserJobDto userJobDt) throws Exception;
+//	void applyJobs(Long id, UserJobDto userJobDto) throws Exception;
 
 	Page<IListUserJobDto> candidateAppliedJobList(String search, String pageNumber, String pageSize);
+
+	Page<IListUserJobDto> getUsersAppliedJobList(Long jobId, String pageNumber, String pageSize);
+
+	void candidateApplyJobs(Long id, UserJobDto userJobDto) throws Exception;
 
 }

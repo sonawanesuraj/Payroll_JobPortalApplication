@@ -39,7 +39,7 @@ public class JobController {
 	@Autowired
 	private JobServiceImpl jobServiceImpl;
 
-	@PreAuthorize("hasRole('recruiterJobAdd')")
+	// @PreAuthorize("hasRole('recruiterJobAdd')")
 	@PostMapping("/recruiterJobAdd")
 	public ResponseEntity<?> addJobs(@RequestBody JobDto jobDto) {
 

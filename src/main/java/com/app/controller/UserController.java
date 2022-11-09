@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.app.dto.ErrorResponseDto;
 import com.app.dto.IUserListDto;
+import com.app.dto.ListResponseDto;
 import com.app.dto.SuccessResponseDto;
 import com.app.dto.UserDto;
 import com.app.exception.ResourceNotFoundException;
@@ -51,8 +52,8 @@ public class UserController {
 		Page<IUserListDto> user = userServiceImpl.getAllUsers(search, pageNo, pageSize);
 
 		if (user.getTotalElements() != 0) {
-			return new ResponseEntity<>(
-					new SuccessResponseDto("All Users get Successfully", "Success", user.getContent()), HttpStatus.OK);
+			return new ResponseEntity<>(new SuccessResponseDto("All Users List", "success",
+					new ListResponseDto(user.getContent(), user.getTotalElements())), HttpStatus.OK);
 
 		}
 

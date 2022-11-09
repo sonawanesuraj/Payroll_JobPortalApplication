@@ -85,7 +85,7 @@ public class UserRoleController {
 
 	}
 
-	@PreAuthorize("hasRole('getAllUserRole')")
+	// @PreAuthorize("hasRole('getAllUserRole')")
 	@GetMapping("/getAllUserRole")
 	public ResponseEntity<?> getAllUserRole(@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String PageSize) {

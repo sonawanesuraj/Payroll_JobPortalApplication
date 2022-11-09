@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -46,6 +47,12 @@ public class JobEntity {
 	@Column(name = "updated_at")
 	@UpdateTimestamp
 	private Date updatedAt;
+
+	@JoinColumn(name = "created_by")
+	private Long createdBy;
+
+	@JoinColumn(name = "updated_by")
+	private Long updatedBy;
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "job")
@@ -105,6 +112,23 @@ public class JobEntity {
 
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+
+	}
+
+	public Long getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(Long createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Long getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(Long updatedBy) {
+		this.updatedBy = updatedBy;
 	}
 
 	public JobEntity() {
@@ -113,7 +137,7 @@ public class JobEntity {
 	}
 
 	public JobEntity(Long id, String jobName, String description, boolean isActive, Date createdAt, Date updatedAt,
-			List<UserJobEntity> userJobEntity) {
+			Long createdBy, Long updatedBy, List<UserJobEntity> userJobEntity) {
 		super();
 		this.id = id;
 		this.jobName = jobName;
@@ -121,7 +145,10 @@ public class JobEntity {
 		this.isActive = isActive;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.createdBy = createdBy;
+		this.updatedBy = updatedBy;
 		this.userJobEntity = userJobEntity;
+
 	}
 
 }

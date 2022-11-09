@@ -1,32 +1,19 @@
 package com.app.dto;
 
-import java.util.List;
-
 public class UserJobDto {
 
-	private Long userId;
+	private Long jobId;
 
-	private List<Long> jobId;
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public List<Long> getJobId() {
+	public Long getJobId() {
 		return jobId;
 	}
 
-	public void setJobId(List<Long> jobId) {
+	public void setJobId(Long jobId) {
 		this.jobId = jobId;
 	}
 
-	public UserJobDto(Long userId, List<Long> jobId) {
+	public UserJobDto(Long jobId) {
 		super();
-		this.userId = userId;
 		this.jobId = jobId;
 	}
 
