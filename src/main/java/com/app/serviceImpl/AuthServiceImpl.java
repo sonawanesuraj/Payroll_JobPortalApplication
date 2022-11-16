@@ -8,13 +8,14 @@ import com.app.entities.OtpEntity;
 import com.app.entities.UserEntity;
 import com.app.exception.ResourceNotFoundException;
 import com.app.repository.AuthRepository;
+import com.app.repository.OtpRepository;
 import com.app.serviceInterface.AuthInterface;
 import com.app.serviceInterface.RolePermissionInterface;
 import com.app.util.CacheOperation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthInterface, UserDetailsService {
+	private static final Logger LOG = LoggerFactory.getLogger(AuthServiceImpl.class);
 
 	@Autowired
 	private AuthRepository authRepository;
@@ -36,6 +38,9 @@ public class AuthServiceImpl implements AuthInterface, UserDetailsService {
 
 	@Autowired
 	private CacheOperation cache;
+
+	@Autowired
+	private OtpRepository otpRepository;
 
 	@Override
 	public void addUser(UserDto user) {
@@ -51,33 +56,9 @@ public class AuthServiceImpl implements AuthInterface, UserDetailsService {
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		UserEntity userEntity = new UserEntity();
 
-		if (!cache.isKeyExist(email, email)) {
+		userEntity = this.authRepository.findByEmailContainingIgnoreCase(email);
 
-			userEntity = this.authRepository.findByEmailContainingIgnoreCase(email);
-			System.out.println("FROM DATABASE.....");
-			cache.addInCache(email, email, userEntity.toString());
-		} else {
-
-			String jsonString = (String) cache.getFromCache(email, email);
-
-			System.out.println("FROM CACHE......");
-			JSONObject jsonObject = null;
-			try {
-				jsonObject = new JSONObject(jsonString);
-				userEntity.setId(Long.parseLong(jsonObject.getString("id")));
-				userEntity.setEmail(jsonObject.getString("email"));
-				userEntity.setPassword(jsonObject.getString("password"));
-
-			} catch (JSONException e) {
-				userEntity = null;
-			}
-
-		}
-
-		if (userEntity == null)
-
-		{
-
+		if (userEntity.getEmail().isEmpty()) {
 			throw new ResourceNotFoundException("User OR Password not found");
 		}
 
@@ -109,13 +90,19 @@ public class AuthServiceImpl implements AuthInterface, UserDetailsService {
 	}
 
 	@Override
-	public Boolean updateUserwithPassword(ForgotPasswordConfirmDto passwordDto, UserEntity user, OtpEntity otpEntity)
-			throws Exception {
+	public boolean forgotPasswordConfirm(ForgotPasswordConfirmDto passwordConfirmDto, UserEntity userEntity,
+			OtpEntity otpEntity) throws Exception {
+		LOG.info("AuthServiceImpl >> forgotPasswordConfirm() >> ");
 
-		user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
-		this.authRepository.save(user);
+		LOG.info("AuthServiceImpl >> forgotPasswordConfirm() >> check user email");
 
-		return true;
+		userEntity.setPassword(passwordEncoder.encode(passwordConfirmDto.getPassword()));
+
+		this.authRepository.save(userEntity);
+		this.otpRepository.deleteAll();
+		LOG.info("AuthServiceImpl >> forgotPasswordConfirm() >> Done password changed");
+		return false;
 
 	}
+
 }

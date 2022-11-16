@@ -6,6 +6,6 @@ import com.app.entities.OtpEntity;
 
 public interface OtpInterface {
 
-	public OtpEntity saveOtp(String email, Integer otp, Long userId, Date expiry) throws Exception;
+	public OtpEntity saveOtp(String email, Integer otp, Long userId, Date expiry);
 
 }

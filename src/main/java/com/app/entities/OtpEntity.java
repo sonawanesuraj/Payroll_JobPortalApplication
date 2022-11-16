@@ -3,12 +3,9 @@ package com.app.entities;
 import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,9 +21,7 @@ public class OtpEntity {
 
 	private Integer otp;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "userId")
-	private UserEntity userId;
+	private Long userId;
 
 	private String email;
 
@@ -52,14 +47,6 @@ public class OtpEntity {
 
 	public void setOtp(Integer otp) {
 		this.otp = otp;
-	}
-
-	public UserEntity getUserId() {
-		return userId;
-	}
-
-	public void setUserId(UserEntity userId) {
-		this.userId = userId;
 	}
 
 	public String getEmail() {
@@ -94,8 +81,16 @@ public class OtpEntity {
 		this.updatedAt = updatedAt;
 	}
 
-	public OtpEntity(long id, Integer otp, UserEntity userId, String email, Date expireAt, Date createdAt,
-			Date updatedAt) {
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+
+	}
+
+	public OtpEntity(long id, Integer otp, Long userId, String email, Date expireAt, Date createdAt, Date updatedAt) {
 		super();
 		this.id = id;
 		this.otp = otp;

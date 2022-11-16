@@ -2,10 +2,14 @@ package com.app.dto;
 
 public interface IListUserJobDto {
 
-	public Long getId();
+	public Long getUserId();
 
-	public IUserListDto getUser();
+	public String getJobTitle();
 
-	public IJobListDto getJob();
+	public String getDescription();
+
+	public Long getJobId();
+
+	public String getUserName();
 
 }

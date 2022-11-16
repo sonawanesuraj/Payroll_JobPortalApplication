@@ -4,10 +4,12 @@ import java.util.List;
 
 import com.app.dto.ErrorResponseDto;
 import com.app.dto.IListUserRole;
+import com.app.dto.ListResponseDto;
 import com.app.dto.SuccessResponseDto;
 import com.app.dto.UserRoleDto;
 import com.app.entities.UserRoleEntity;
 import com.app.serviceInterface.UserRoleInterface;
+import com.app.util.ApiUrls;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/userRole")
+@RequestMapping(ApiUrls.USERROLE)
 public class UserRoleController {
 
 	@Autowired
@@ -78,25 +80,20 @@ public class UserRoleController {
 			List<IListUserRole> iListUserRole = this.userRoleInterface.getUserRoleById(id);
 			return new ResponseEntity<>(iListUserRole, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.print("Not Found...");
 
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
 	}
 
-	// @PreAuthorize("hasRole('getAllUserRole')")
-	@GetMapping("/getAllUserRole")
-	public ResponseEntity<?> getAllUserRole(@RequestParam(defaultValue = "") String search,
-			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String PageSize) {
-		Page<IListUserRole> userRole = this.userRoleInterface.getAllUserRole(search, pageNo, PageSize);
+	@GetMapping(ApiUrls.GET_ALL)
+	public ResponseEntity<?> recruiterList(@RequestParam(defaultValue = "") String userId,
+			@RequestParam(defaultValue = "") String roleId, @RequestParam(defaultValue = "1") String pageNo,
+			@RequestParam(defaultValue = "25") String pageSize) {
+		Page<IListUserRole> recruiter = userRoleInterface.getAllUserRole(userId, roleId, pageNo, pageSize);
 
-		if (userRole.getTotalElements() != 0) {
-			return new ResponseEntity<>(new SuccessResponseDto("All UserRole", "Success", userRole.getContent()),
-					HttpStatus.OK);
-
-		}
-
-		return new ResponseEntity<>(new ErrorResponseDto("Data Not Found", "Data Not Found"), HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(new SuccessResponseDto(" All  User-Role List", "success",
+				new ListResponseDto(recruiter.getContent(), recruiter.getTotalElements())), HttpStatus.OK);
 	}
+
 }

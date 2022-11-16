@@ -36,7 +36,7 @@ public class RolePermissionEntity {
 	private Date createdAt;
 
 	@UpdateTimestamp
-	private Date UpdatedAt;
+	private Date updatedAt;
 
 	public RolePermissionEntity() {
 		super();
@@ -51,7 +51,7 @@ public class RolePermissionEntity {
 		this.permission = permission;
 		this.isActive = isActive;
 		this.createdAt = createdAt;
-		UpdatedAt = updatedAt;
+		updatedAt = updatedAt;
 	}
 
 	public Long getId() {
@@ -95,11 +95,11 @@ public class RolePermissionEntity {
 	}
 
 	public Date getUpdatedAt() {
-		return UpdatedAt;
+		return updatedAt;
 	}
 
 	public void setUpdatedAt(Date updatedAt) {
-		UpdatedAt = updatedAt;
+		updatedAt = updatedAt;
 	}
 
 }

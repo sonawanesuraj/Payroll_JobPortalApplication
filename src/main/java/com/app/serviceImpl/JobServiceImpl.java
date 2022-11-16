@@ -37,10 +37,11 @@ public class JobServiceImpl implements JobInterface {
 	}
 
 	@Override
-	public JobDto addJob(JobDto jobDto) {
+	public JobDto addJob(Long id, JobDto jobDto) {
 		JobEntity jobEntity = new JobEntity();
 		jobEntity.setJobName(jobDto.getJobName());
 		jobEntity.setDescription(jobDto.getDescription());
+		jobEntity.setCreatedBy(id);
 		jobRepository.save(jobEntity);
 		return jobDto;
 	}

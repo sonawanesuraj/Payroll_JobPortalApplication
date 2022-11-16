@@ -10,5 +10,8 @@ public interface EmailInterface {
 
 	public String sendMail(String emailTo, String subject, String text, UserEntity userEntity);
 
-	public int generateOTP();
+	public void generateOtpAndSendEmail(String email, Long id) throws MessagingException;
+
+	int generateOTP();
+
 }

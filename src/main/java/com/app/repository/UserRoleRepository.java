@@ -29,7 +29,14 @@ public interface UserRoleRepository extends JpaRepository<UserRoleEntity, Long> 
 
 	List<IListUserRole> findById(Long id, Class<IListUserRole> class1);
 
-	Page<IListUserRole> findByOrderByIdAsc(Pageable page, Class<IListUserRole> iListUserRole);
+	@Query(value = "select u.id as UserId,u.user_name as UserName,ur.id as UserRoleId,r.role_name as RoleName,r.description as Description,r.id as RoleId from users u \r\n"
+			+ "join user_role ur on ur.user_id=u.id and ur.is_active='true'\r\n"
+			+ "join roles r on ur.role_id=r.id and r.is_active='true'" + "where ur.is_active='true'\r\n"
+			+ "AND (:userId = '' OR ur.user_id IN (select unnest(cast(string_to_array(:userId, '') as bigint[]))))\r\n"
+			+ "AND (:roleId ='' OR  ur.role_id IN (select unnest(cast(string_to_array(:roleId,'') as bigint[])))) order by ur.id desc", nativeQuery = true)
+
+	Page<IListUserRole> findByOrderByIdDesc(@Param("userId") String userId, @Param("roleId") String roleId,
+			Pageable page, Class<IListUserRole> iListUserRole);
 
 	@Query(value = "SELECT * FROM user_role u WHERE u.user_id=:userId", nativeQuery = true)
 	List<UserRoleEntity> findByRole(@Param("userId") Long userId);
@@ -41,7 +48,6 @@ public interface UserRoleRepository extends JpaRepository<UserRoleEntity, Long> 
 	@Query(value = "SELECT * FROM user_role u WHERE u.user_id=:user_id", nativeQuery = true)
 	ArrayList<UserRoleEntity> getRolesOfUser(@Param("user_id") Long userId);
 
-	// Page<IListUserRole> findByUserRoleName(String UserRoleName, Pageable paging,
-	// Class<IListUserRole> class1);
+	ArrayList<UserRoleEntity> findUserIdByRoleId(Long userId);
 
 }

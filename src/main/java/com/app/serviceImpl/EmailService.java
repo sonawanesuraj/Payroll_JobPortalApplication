@@ -1,11 +1,14 @@
 
 package com.app.serviceImpl;
 
+import java.util.Calendar;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import com.app.entities.UserEntity;
 import com.app.serviceInterface.EmailInterface;
+import com.app.serviceInterface.OtpInterface;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,6 +21,9 @@ public class EmailService implements EmailInterface {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
+
+	@Autowired
+	private OtpInterface otpInterface;
 
 	@Override
 	public void sendSimpleMessage(String emailTo, String subject, String text) throws MessagingException {
@@ -51,6 +57,20 @@ public class EmailService implements EmailInterface {
 
 		int randomInt = (int) Math.floor(Math.random() * (max - min + 1) + min);
 		return randomInt;
+
+	}
+
+	@Override
+	public void generateOtpAndSendEmail(String email, Long userId) throws MessagingException {
+
+		int otp = generateOTP();
+		Calendar calendar = Calendar.getInstance();
+		String otp1 = Integer.toString(otp);
+
+		final String url = otp1;
+		calendar.add(Calendar.MINUTE, 5);
+		this.otpInterface.saveOtp(email, otp, userId, calendar.getTime());
+		this.sendSimpleMessage(email, "Your one time password OTP  ", otp1);
 
 	}
 

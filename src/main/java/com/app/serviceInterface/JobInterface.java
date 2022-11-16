@@ -9,7 +9,7 @@ public interface JobInterface {
 
 	public List<IJobListDto> getJobById(Long id);
 
-	public JobDto addJob(JobDto jobDto);
+	public JobDto addJob(Long id, JobDto jobDto);
 
 	public JobDto updateJob(JobDto jobDto, Long id);
 

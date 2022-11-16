@@ -93,13 +93,15 @@ public class UserRoleServiceImpl implements UserRoleInterface {
 	}
 
 	@Override
-	public Page<IListUserRole> getAllUserRole(String search, String pageNumber, String pageSize) {
-
+	public Page<IListUserRole> getAllUserRole(String userId, String roleId, String pageNumber, String pageSize) {
 		Pageable paging = new Pagination().getPagination(pageNumber, pageSize);
 
 		Page<IListUserRole> iListUserRole;
-		iListUserRole = userRoleRepository.findByOrderByIdAsc(paging, IListUserRole.class);
+
+		iListUserRole = userRoleRepository.findByOrderByIdDesc(userId, roleId, paging, IListUserRole.class);
 
 		return iListUserRole;
+
 	}
+
 }

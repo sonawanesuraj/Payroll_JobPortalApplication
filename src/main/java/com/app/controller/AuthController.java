@@ -6,13 +6,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-import com.app.configuration.jwtTokenUtil;
+import com.app.configuration.JwtTokenUtil;
 import com.app.dto.AuthResponceDto;
+import com.app.dto.EmailOtpDto;
 import com.app.dto.ErrorResponseDto;
 import com.app.dto.ForgotPasswordConfirmDto;
 import com.app.dto.JwtRequestDto;
 import com.app.dto.LoggerDto;
-import com.app.dto.OtpDto;
 import com.app.dto.SuccessResponseDto;
 import com.app.dto.UserDto;
 import com.app.entities.OtpEntity;
@@ -21,11 +21,12 @@ import com.app.exception.ResourceNotFoundException;
 import com.app.repository.AuthRepository;
 import com.app.repository.OtpRepository;
 import com.app.serviceImpl.AuthServiceImpl;
-import com.app.serviceImpl.EmailService;
 import com.app.serviceImpl.LoggerServiceImpl;
 import com.app.serviceImpl.OtpServiceImpl;
 import com.app.serviceInterface.AuthInterface;
+import com.app.serviceInterface.EmailInterface;
 import com.app.serviceInterface.LoggerInterface;
+import com.app.util.ApiUrls;
 import com.app.util.PasswordValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +38,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -54,7 +53,7 @@ public class AuthController {
 	private AuthServiceImpl authServiceImpl;
 
 	@Autowired
-	private jwtTokenUtil jwtTokenUtil;
+	private JwtTokenUtil JwtTokenUtil;
 
 	@Autowired
 	private LoggerServiceImpl loggerServiceImpl;
@@ -63,7 +62,7 @@ public class AuthController {
 	private LoggerInterface loggerInterface;
 
 	@Autowired
-	private EmailService emailService;
+	private EmailInterface emailInterface;
 
 	@Autowired
 	private OtpServiceImpl OtpserviceImpl;
@@ -71,7 +70,7 @@ public class AuthController {
 	@Autowired
 	private OtpRepository otpRepository;
 
-	@PostMapping("/register")
+	@PostMapping(ApiUrls.REGISTER)
 	public ResponseEntity<?> createUser(@Valid @RequestBody UserDto userDto, HttpServletRequest request)
 			throws Exception, DataIntegrityViolationException {
 
@@ -107,21 +106,21 @@ public class AuthController {
 
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequestDto createAuthenticationToken)
+	@PostMapping(ApiUrls.LOGIN)
+	public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody JwtRequestDto createAuthenticationToken)
 			throws Exception {
 		try {
-
 			UserEntity user = authRepository.findByEmailContainingIgnoreCase(createAuthenticationToken.getEmail());
 
 			if (this.authServiceImpl.comparePassword(createAuthenticationToken.getPassword(), user.getPassword())) {
+
 				final UserDetails userDetails = this.authServiceImpl
 						.loadUserByUsername(createAuthenticationToken.getEmail());
 
 				final UserEntity userEntity = this.authRepository
 						.findByEmailContainingIgnoreCase(createAuthenticationToken.getEmail());
 
-				final String token = this.jwtTokenUtil.generateToken(userDetails);
+				final String token = this.JwtTokenUtil.generateToken(userDetails);
 
 				LoggerDto loggerDto = new LoggerDto();
 
@@ -133,99 +132,80 @@ public class AuthController {
 
 				loggerDto.setExpireAt(calendar.getTime());
 
-				this.loggerServiceImpl.createLogger(loggerDto, userEntity);
+				this.loggerInterface.createLogger(loggerDto, userEntity);
 
-				return ResponseEntity.ok(new SuccessResponseDto("Login Successfull", "token",
-						new AuthResponceDto(token, userEntity.getEmail(), userEntity.getName(), userEntity.getId())));
+				return new ResponseEntity<>(new SuccessResponseDto("Login successfull", "token",
+						new AuthResponceDto(token, userEntity.getEmail(), userEntity.getName(), userEntity.getId())),
+						HttpStatus.OK);
 
 			} else {
-				return ResponseEntity.ok(new ErrorResponseDto("Invalid password ", "Please enter valid password"));
+				return new ResponseEntity<>(new ErrorResponseDto("Invalid password", "Please enter valid password"),
+						HttpStatus.BAD_REQUEST);
 
 			}
 		} catch (Exception e) {
 
-			return ResponseEntity
-					.ok(new ErrorResponseDto("Invalid email or Password", "Please enter valid email or password"));
+			return new ResponseEntity<>(
+					new ErrorResponseDto("Invalid email or Password", "Please enter valid email or password"),
+					HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	@PostMapping("/forgotPassword")
-	ResponseEntity<?> forgotpassword(@RequestBody OtpDto otpDto, HttpServletRequest request) {
+	@PostMapping(ApiUrls.FORGOT_PASSWORD)
+	public ResponseEntity<?> forgotPassword(@RequestBody EmailOtpDto emailOtpDto) {
 		try {
-			UserEntity users = authRepository.findByEmailContainingIgnoreCase(otpDto.getEmail());
+			UserEntity userEntity = this.authRepository.findByEmailContainingIgnoreCase(emailOtpDto.getEmail());
+			if (userEntity == null) {
+				return new ResponseEntity<>(new ErrorResponseDto("User not found", "check your email"),
+						HttpStatus.BAD_REQUEST);
+			}
 
-			final int otp = emailService.generateOTP();
-
-			final String url = "OTP For Forgot Password Is-" + otp;
-			Calendar calender = Calendar.getInstance();
-			calender.add(Calendar.MINUTE, 5);
-			otpDto.setOtp(otp);
-
-			otpDto.setExpireAt(calender.getTime());
-
-			this.OtpserviceImpl.saveOtp(otpDto, users);
-
-			this.emailService.sendSimpleMessage(users.getEmail(), "subject", url);
-			return ResponseEntity
-					.ok(new SuccessResponseDto("OTP send for user email", "OTP send succesfully", users.getEmail()));
-
+			this.emailInterface.generateOtpAndSendEmail(emailOtpDto.getEmail(), userEntity.getId());
+			return new ResponseEntity<>(
+					new SuccessResponseDto("OTP send user email", "OTP send succesfully", userEntity.getEmail()),
+					HttpStatus.OK);
 		} catch (Exception e) {
-
-			return ResponseEntity.ok(new ErrorResponseDto("User not found", "Sorry !!"));
-
+			return new ResponseEntity<>(new ErrorResponseDto("User not found", "Not found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	@PutMapping("/forgot-password-confirm")
-	public ResponseEntity<?> createforgotpasswordconfirm(@RequestBody ForgotPasswordConfirmDto passwordDto)
+	@PutMapping(ApiUrls.FORGOT_PASSWORD_CONFIRM)
+	public ResponseEntity<?> forgotPasswordConfirm(@RequestBody ForgotPasswordConfirmDto forgotPasswordConfirmDto)
 			throws Exception {
 
 		try {
-			UserEntity user = this.authRepository.findByEmailContainingIgnoreCase(passwordDto.getEmail());
+			UserEntity userEntity = this.authRepository
+					.findByEmailContainingIgnoreCase(forgotPasswordConfirmDto.getEmail());
 
-			if (user == null) {
-				return ResponseEntity.ok("email not found");
-			}
+			OtpEntity otpEntity = this.otpRepository.findByOtp(forgotPasswordConfirmDto.getOtp());
 
-			OtpEntity otpEntity = this.otpRepository.findByOtp(passwordDto.getOtp());
-
-			if (otpEntity != null) {
-				UserEntity users = this.authRepository.findById(otpEntity.getUserId().getId())
-						.orElseThrow(() -> new ResourceNotFoundException("usernotfound"));
-			}
-
-			else {
-				throw new Exception("otp not found");
-			}
-			try {
-				String password = passwordDto.getPassword();
-
-				{
-					if (PasswordValidator.isValid(password)) {
-
-					}
-
-					else {
-						throw new Exception("not found");
-					}
+			if (null == otpEntity) {
+				return new ResponseEntity<>(new ErrorResponseDto("Check your OTP", "Enter valid OTP"),
+						HttpStatus.BAD_REQUEST);
+			} else {
+				if (!otpEntity.getEmail().equals(forgotPasswordConfirmDto.getEmail())) {
+					return new ResponseEntity<>(new ErrorResponseDto("Invalid email", "Enter valid email"),
+							HttpStatus.BAD_REQUEST);
 				}
 			}
 
-			catch (Exception e) {
-				return ResponseEntity.ok(new ErrorResponseDto(
-						"Password should have Minimum 8 and maximum 50 characters, at least one uppercase letter, one lowercase letter, one number and one special character and No White Spaces",
-						"Password validation not done"));
+			if (!PasswordValidator.isValid(forgotPasswordConfirmDto.getPassword())) {
+				return new ResponseEntity<>(new ErrorResponseDto(
+						"Password should have Minimum 8 and maximum 50 characters, at least one uppercase letter, one lowercase letter, one number and one special character and no white spaces",
+						"Enter valid password"), HttpStatus.BAD_REQUEST);
 			}
 
-			this.authServiceImpl.updateUserwithPassword(passwordDto, user, otpEntity);
-			return ResponseEntity.ok("password updated successfully");
-		} catch (Exception e) {
-			return ResponseEntity.ok("Wrong otp");
+			this.authInterface.forgotPasswordConfirm(forgotPasswordConfirmDto, userEntity, otpEntity);
+
+			return new ResponseEntity<>(new SuccessResponseDto("Password updated successfully", "successfull"),
+					HttpStatus.OK);
+		} catch (ResourceNotFoundException e) {
+			return new ResponseEntity<>(new ErrorResponseDto(e.getMessage(), "Not found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@Transactional
-	@RequestMapping(value = "/logout", method = RequestMethod.POST)
+	@PostMapping(ApiUrls.LOGOUT)
 	public ResponseEntity<?> logoutUser(@RequestHeader("Authorization") String token, HttpServletRequest request) {
 		loggerInterface.logout(token);
 		return new ResponseEntity<>(new ErrorResponseDto("Logout Successfully", "logoutSuccess"), HttpStatus.OK);

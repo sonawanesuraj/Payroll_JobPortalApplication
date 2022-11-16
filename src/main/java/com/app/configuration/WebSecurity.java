@@ -3,6 +3,7 @@ package com.app.configuration;
 import java.util.Arrays;
 
 import com.app.serviceImpl.AuthServiceImpl;
+import com.app.util.ApiUrls;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -47,8 +48,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
 		http.cors().configurationSource(corsConfigurationSource()).and().csrf().disable()
 				// dont authenticate this particular request
-				.authorizeRequests().antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers("/register", "/login").permitAll().
+				.authorizeRequests().antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers(ApiUrls.LOGIN,
+						ApiUrls.REGISTER, ApiUrls.FORGOT_PASSWORD, ApiUrls.FORGOT_PASSWORD_CONFIRM, ApiUrls.LOGOUT)
+				.permitAll().antMatchers(ApiUrls.SWAGGER_URLS).permitAll().
 				// all other requests need to be authenticated
 				anyRequest().authenticated().and().httpBasic().and().
 				// make sure we use stateless session; session won't be used to
@@ -56,7 +58,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 				exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and().sessionManagement()
 
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		// Add a filter to validate the tokens with every request
+// Add a filter to validate the tokens with every request
 		http.addFilterBefore(jwtRequestFilte, UsernamePasswordAuthenticationFilter.class);
 
 	}

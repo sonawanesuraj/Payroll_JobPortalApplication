@@ -8,6 +8,7 @@ import com.app.dto.RolePermissionDto;
 import com.app.dto.SuccessResponseDto;
 import com.app.exception.ResourceNotFoundException;
 import com.app.serviceInterface.RolePermissionInterface;
+import com.app.util.ApiUrls;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/rolePermission")
+@RequestMapping(ApiUrls.ROLEPERMISSION)
 public class RolePermissionController {
 
 	@Autowired
@@ -83,13 +84,12 @@ public class RolePermissionController {
 			List<IListRolePermission> iListRolePermission = this.rolePermissionInterface.getRolePermissionById(id);
 			return new ResponseEntity<>(iListRolePermission, HttpStatus.OK);
 		} catch (Exception e) {
-			System.out.print("Not Found...");
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
 	}
 
-	@GetMapping()
+	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> getAllRolePermission(@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String PageSize) {
 		Page<IListRolePermission> rolePermission = this.rolePermissionInterface.getAllRolePermission(search, pageNo,

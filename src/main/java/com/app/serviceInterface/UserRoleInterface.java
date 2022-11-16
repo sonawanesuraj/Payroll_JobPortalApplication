@@ -18,6 +18,6 @@ public interface UserRoleInterface {
 
 	public List<IListUserRole> getUserRoleById(Long id);
 
-	Page<IListUserRole> getAllUserRole(String search, String pageNumber, String pageSize);
+	Page<IListUserRole> getAllUserRole(String userId, String roleId, String pageNumber, String pageSize);
 
 }

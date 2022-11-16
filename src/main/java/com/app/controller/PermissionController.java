@@ -8,6 +8,7 @@ import com.app.dto.PermissionDto;
 import com.app.dto.SuccessResponseDto;
 import com.app.exception.ResourceNotFoundException;
 import com.app.serviceInterface.PermissionInterface;
+import com.app.util.ApiUrls;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/permission")
+@RequestMapping(ApiUrls.PERMISSIONS)
 public class PermissionController {
 
 	@Autowired
@@ -34,7 +35,7 @@ public class PermissionController {
 	public ResponseEntity<?> addPermission(@RequestBody PermissionDto permissionDto) {
 
 		try {
-			permissionDto = this.permissionInterface.addPermission(permissionDto);
+			this.permissionInterface.addPermission(permissionDto);
 			return new ResponseEntity<>(
 					new SuccessResponseDto("permission Added Successfully", "Permission Added", "Data added"),
 					HttpStatus.ACCEPTED);
@@ -49,7 +50,7 @@ public class PermissionController {
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updatePermission(@RequestBody PermissionDto permissionDto, @PathVariable long id) {
 		try {
-			permissionDto = this.permissionInterface.updatePermission(id, permissionDto);
+			this.permissionInterface.updatePermission(id, permissionDto);
 			return new ResponseEntity<>(
 					new SuccessResponseDto(" permission updated sucessfully", "permission updated !!", permissionDto),
 					HttpStatus.CREATED);
@@ -84,7 +85,7 @@ public class PermissionController {
 		}
 	}
 
-	@GetMapping()
+	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> getAllPermission(@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String PageSize) {
 		Page<IListPermissionDto> permission = this.permissionInterface.getAllPermission(search, pageNo, PageSize);

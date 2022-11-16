@@ -9,6 +9,7 @@ import com.app.exception.ResourceNotFoundException;
 import com.app.repository.RoleRepository;
 import com.app.serviceImpl.RoleServiceImpl;
 import com.app.serviceInterface.RoleInterface;
+import com.app.util.ApiUrls;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("role")
+@RequestMapping(ApiUrls.ROLE)
 public class RoleController {
 
 	@Autowired
@@ -71,7 +72,7 @@ public class RoleController {
 
 	}
 
-	@GetMapping()
+	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> getAllRoles(@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String PageSize) {
 		Page<IRoleListDto> roles = roleServiceImpl.getAllRoles(search, pageNo, PageSize);
@@ -89,7 +90,7 @@ public class RoleController {
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateRole(@RequestBody RoleDto roleDto, @PathVariable long id) {
 		try {
-			roleDto = this.roleInterface.updateRoles(roleDto, id);
+			this.roleInterface.updateRoles(roleDto, id);
 			return new ResponseEntity<>(new SuccessResponseDto("Role updated sucessfully", "Role updated !!", roleDto),
 					HttpStatus.CREATED);
 		} catch (ResourceNotFoundException e) {

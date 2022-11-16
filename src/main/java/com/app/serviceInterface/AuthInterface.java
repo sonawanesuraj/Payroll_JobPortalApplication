@@ -9,7 +9,6 @@ public interface AuthInterface {
 
 	void addUser(UserDto user);
 
-	Boolean updateUserwithPassword(ForgotPasswordConfirmDto passwordDto, UserEntity user, OtpEntity otpEntity)
-			throws Exception;
-
+	boolean forgotPasswordConfirm(ForgotPasswordConfirmDto passwordConfirmDto, UserEntity userEntity,
+			OtpEntity otpEntity) throws Exception;
 }

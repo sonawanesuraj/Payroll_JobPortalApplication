@@ -1,46 +1,32 @@
 package com.app.serviceImpl;
 
-import com.app.dto.OtpDto;
+import java.util.Date;
+
 import com.app.entities.OtpEntity;
-import com.app.entities.UserEntity;
-import com.app.exception.ResourceNotFoundException;
 import com.app.repository.OtpRepository;
+import com.app.serviceInterface.OtpInterface;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OtpServiceImpl {
+public class OtpServiceImpl implements OtpInterface {
 
 	@Autowired
-	private OtpRepository otpRepository;
+	OtpRepository otpRepository;
 
-	public OtpEntity saveOtp(OtpDto otpDto, UserEntity users) throws Exception {
-		try {
+	@Override
+	public OtpEntity saveOtp(String email, Integer otp, Long userId, Date expiry) {
 
-			OtpEntity otpEntity = this.otpRepository.findByEmailContainingIgnoreCase(otpDto.getEmail());
+		OtpEntity otpEntity = new OtpEntity();
 
-			if (otpEntity != null) {
+		otpEntity.setEmail(email);
+		otpEntity.setOtp(otp);
+		otpEntity.setUserId(userId);
+		otpEntity.setExpireAt(expiry);
+		this.otpRepository.save(otpEntity);
 
-				throw new ResourceNotFoundException("Something went wrong");
-			}
-
-			else {
-
-				OtpEntity entity = new OtpEntity();
-				entity.setUserId(users);
-				entity.setEmail(users.getEmail());
-				entity.setOtp(otpDto.getOtp());
-				entity.setExpireAt(otpDto.getExpireAt());
-
-				otpRepository.save(entity);
-				return entity;
-			}
-		} catch (Exception e) {
-
-			throw new Exception("Something went wrong !!!!");
-		}
+		return otpEntity;
 
 	}
-
 }

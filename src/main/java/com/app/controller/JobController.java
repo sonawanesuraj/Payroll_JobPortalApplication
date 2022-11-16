@@ -10,6 +10,8 @@ import com.app.exception.ResourceNotFoundException;
 import com.app.repository.JobRepository;
 import com.app.serviceImpl.JobServiceImpl;
 import com.app.serviceInterface.JobInterface;
+import com.app.util.ApiUrls;
+import com.app.util.GlobalFunction;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,13 +23,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/job")
+@RequestMapping(ApiUrls.JOB)
 public class JobController {
 
 	@Autowired
@@ -39,12 +42,13 @@ public class JobController {
 	@Autowired
 	private JobServiceImpl jobServiceImpl;
 
-	// @PreAuthorize("hasRole('recruiterJobAdd')")
-	@PostMapping("/recruiterJobAdd")
-	public ResponseEntity<?> addJobs(@RequestBody JobDto jobDto) {
+	@PreAuthorize("hasRole('recruiterJobAdd')")
+	@PostMapping()
+	public ResponseEntity<?> addJobs(@RequestAttribute(GlobalFunction.CUSTUM_ATTRIBUTE_USER_ID) Long id,
+			@RequestBody JobDto jobDto) {
 
 		try {
-			jobDto = this.jobInterface.addJob(jobDto);
+			this.jobInterface.addJob(id, jobDto);
 			return new ResponseEntity<>(new SuccessResponseDto("job Added Successfully", "job Added", "Data added"),
 					HttpStatus.ACCEPTED);
 		} catch (ResourceNotFoundException e) {
@@ -55,10 +59,11 @@ public class JobController {
 
 	}
 
+	@PreAuthorize("hasRole('jobEdit')")
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateJob(@RequestBody JobDto jobDto, @PathVariable long id) {
 		try {
-			jobDto = this.jobInterface.updateJob(jobDto, id);
+			this.jobInterface.updateJob(jobDto, id);
 			return new ResponseEntity<>(new SuccessResponseDto("Job updated sucessfully", "job updated !!", jobDto),
 					HttpStatus.CREATED);
 		} catch (ResourceNotFoundException e) {
@@ -69,8 +74,7 @@ public class JobController {
 	}
 
 	@PreAuthorize("hasRole('JobDelete')")
-
-	@DeleteMapping("/JobDelete/{id}")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteJob(@PathVariable(name = "id") Long id) throws ResourceNotFoundException {
 		try {
 			jobInterface.deleteJob(id);
@@ -95,8 +99,8 @@ public class JobController {
 
 	}
 
-	@PreAuthorize("hasRole('getAllJob')")
-	@GetMapping("/getAllJob")
+	@PreAuthorize("hasRole('jobView')")
+	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> getAllJob(@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String pageSize) {
 		Page<IJobListDto> job = jobServiceImpl.getAllJobs(search, pageNo, pageSize);
@@ -109,4 +113,5 @@ public class JobController {
 
 		return new ResponseEntity<>(new ErrorResponseDto("Data Not Found", "Data Not Found"), HttpStatus.NOT_FOUND);
 	}
+
 }

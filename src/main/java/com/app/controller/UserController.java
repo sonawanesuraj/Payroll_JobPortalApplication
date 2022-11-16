@@ -1,21 +1,29 @@
 package com.app.controller;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.app.dto.ErrorResponseDto;
 import com.app.dto.IUserListDto;
 import com.app.dto.ListResponseDto;
 import com.app.dto.SuccessResponseDto;
 import com.app.dto.UserDto;
+import com.app.entities.ExcelExporter;
+import com.app.entities.UserEntity;
 import com.app.exception.ResourceNotFoundException;
 import com.app.serviceImpl.UserServiceImpl;
 import com.app.serviceInterface.UserInterface;
+import com.app.util.ApiUrls;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,7 +54,7 @@ public class UserController {
 		}
 	}
 
-	@GetMapping()
+	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "") String search,
 			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String pageSize) {
 		Page<IUserListDto> user = userServiceImpl.getAllUsers(search, pageNo, pageSize);
@@ -60,11 +68,10 @@ public class UserController {
 		return new ResponseEntity<>(new ErrorResponseDto("Data Not Found", "Data Not Found"), HttpStatus.NOT_FOUND);
 	}
 
-	@PreAuthorize("hasRole('recruiterUpdate')")
-	@PutMapping("/recruiterUpdate/{id}")
+	@PutMapping("/{id}")
 	public ResponseEntity<?> updateUser(@RequestBody UserDto userDto, @PathVariable long id) {
 		try {
-			userDto = this.userInterface.updateUser(id, userDto);
+			this.userInterface.updateUser(id, userDto);
 			return new ResponseEntity<>(new SuccessResponseDto("User updated sucessfully", "User updated !!", userDto),
 					HttpStatus.CREATED);
 		} catch (ResourceNotFoundException e) {
@@ -84,6 +91,24 @@ public class UserController {
 			return ResponseEntity.ok(new ErrorResponseDto(e.getMessage(), "Enter Valid Id"));
 
 		}
+	}
+
+	@GetMapping("/export/excel")
+	public void exportToExcel(HttpServletResponse response) throws IOException {
+		response.setContentType("application/octet-stream");
+		DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+		String currentDateTime = dateFormatter.format(new Date());
+
+		String headerKey = "Content-Disposition";
+		String headerValue = "attachment; filename=Sheet1_" + currentDateTime + ".xlsx";
+		response.setHeader(headerKey, headerValue);
+
+		List<UserEntity> listUsers = userServiceImpl.listAll();
+
+		ExcelExporter excelExporter = new ExcelExporter(listUsers);
+
+		excelExporter.export(response);
+
 	}
 
 }

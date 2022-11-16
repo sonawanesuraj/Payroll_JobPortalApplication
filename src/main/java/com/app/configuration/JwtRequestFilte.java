@@ -23,7 +23,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 public class JwtRequestFilte extends OncePerRequestFilter {
 
 	@Autowired
-	private jwtTokenUtil jwttokenUtil;
+	private JwtTokenUtil jwttokenUtil;
 
 	@Autowired
 	private AuthServiceImpl authServiceImpl;
@@ -43,9 +43,9 @@ public class JwtRequestFilte extends OncePerRequestFilter {
 			try {
 				email = jwttokenUtil.getUsernameFromToken(jwtToken);
 			} catch (IllegalArgumentException e) {
-				System.out.println("Unable to get JWT Token");
+
 			} catch (ExpiredJwtException e) {
-				System.out.println("JWT Token has expired");
+
 			}
 		} else {
 			logger.warn("JWT Token does not begin with Bearer String");

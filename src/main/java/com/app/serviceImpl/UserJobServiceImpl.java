@@ -1,7 +1,7 @@
 package com.app.serviceImpl;
 
-import com.app.dto.Email;
-import com.app.dto.IListUserJobDto;
+import com.app.dto.EmailMsg;
+import com.app.dto.IUserJobListDto;
 import com.app.dto.UserJobDto;
 import com.app.entities.JobEntity;
 import com.app.entities.UserEntity;
@@ -35,18 +35,7 @@ public class UserJobServiceImpl implements UserJobInterface {
 	private EmailInterface emailInterface;
 
 	@Override
-	public Page<IListUserJobDto> candidateAppliedJobList(String search, String pageNumber, String pageSize) {
-
-		Pageable paging = new Pagination().getPagination(pageNumber, pageSize);
-
-		Page<IListUserJobDto> iListUserJobDto;
-		iListUserJobDto = userJobRepository.findByOrderByIdDesc(paging, IListUserJobDto.class);
-
-		return iListUserJobDto;
-	}
-
-	@Override
-	public void candidateApplyJobs(Long id, UserJobDto userJobDto) throws Exception {
+	public void applyJobs(Long id, UserJobDto userJobDto) throws Exception {
 
 		UserEntity userEntity = this.userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Enter valid user id"));
@@ -61,11 +50,11 @@ public class UserJobServiceImpl implements UserJobInterface {
 			throw new ResourceNotFoundException("Already applied ");
 		}
 
-		UserJobEntity userJobEntity = new UserJobEntity();
-		userJobEntity.setUser(userEntity);
-		userJobEntity.setJob(job);
+		UserJobEntity userJobs = new UserJobEntity();
+		userJobs.setUser(userEntity);
+		userJobs.setJob(job);
 
-		this.userJobRepository.save(userJobEntity);
+		this.userJobRepository.save(userJobs);
 
 		UserEntity userEntity2 = this.userRepository.findById(id).orElseThrow();
 		String email = userEntity2.getEmail();
@@ -73,22 +62,23 @@ public class UserJobServiceImpl implements UserJobInterface {
 		JobEntity jobEntity = this.jobRepository.findById(userJobDto.getJobId())
 				.orElseThrow(() -> new ResourceNotFoundException("enter valid job id "));
 
-		Email userEntity1 = this.userJobRepository.findAllUserEmail().get(0);
-
-		emailInterface.sendSimpleMessage(email, "Apply jobs", "Job applied sucessfully for " + jobEntity.getJobName());
+		EmailMsg userEntity1 = userJobRepository.findJobPostedMail(userJobDto.getJobId());
 
 		emailInterface.sendSimpleMessage(userEntity1.getEmail(), "Apply jobs", "Candidate Applied for job"
-				+ "Job title " + jobEntity.getJobName() + "Candidate Email " + userEntity2.getEmail());
+				+ "Job title    " + jobEntity.getJobName() + "Candidate Email " + userEntity2.getEmail());
+
+		emailInterface.sendSimpleMessage(email, " Apply jobs", "Job applied sucessfully for " + jobEntity.getJobName());
+
 	}
 
 	@Override
-	public Page<IListUserJobDto> getUsersAppliedJobList(Long jobId, String pageNumber, String pageSize) {
-		Pageable paging = new Pagination().getPagination(pageNumber, pageSize);
+	public Page<IUserJobListDto> getAllUserJob(String userId, String jobId, String pageNumber, String pageSize) {
+		Page<IUserJobListDto> iUserJobListDto;
+		Pageable pageable = new Pagination().getPagination(pageNumber, pageSize);
 
-		Page<IListUserJobDto> iListUserJobDto;
-		iListUserJobDto = userJobRepository.findByOrderByIdDesc(paging, IListUserJobDto.class);
+		iUserJobListDto = userJobRepository.findByOrderByIdDesc123(userId, jobId, pageable, IUserJobListDto.class);
 
-		return iListUserJobDto;
+		return iUserJobListDto;
 
 	}
 
