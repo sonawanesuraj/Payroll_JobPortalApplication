@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.app.dto.IListUserRole;
+import com.app.dto.IRoleListDto;
 import com.app.dto.UserRoleDto;
 import com.app.entities.RoleEntity;
 import com.app.entities.UserEntity;
@@ -101,6 +102,22 @@ public class UserRoleServiceImpl implements UserRoleInterface {
 		iListUserRole = userRoleRepository.findByOrderByIdDesc(userId, roleId, paging, IListUserRole.class);
 
 		return iListUserRole;
+
+	}
+
+	@Override
+	public List<String> getRoleByUserId(Long roleId) {
+
+		List<String> roleNames = new ArrayList<>();
+		List<IRoleListDto> iListRoles;
+
+		iListRoles = this.userRoleRepository.findRoleByUserId(roleId);
+
+		for (int i = 0; i < iListRoles.size(); i++) {
+			roleNames.add(iListRoles.get(i).getRoleName());
+		}
+
+		return roleNames;
 
 	}
 

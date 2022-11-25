@@ -1,13 +1,8 @@
 package com.app.serviceInterface;
 
-import java.util.List;
-
-import com.app.dto.IJobListDto;
 import com.app.dto.JobDto;
 
 public interface JobInterface {
-
-	public List<IJobListDto> getJobById(Long id);
 
 	public JobDto addJob(Long id, JobDto jobDto);
 

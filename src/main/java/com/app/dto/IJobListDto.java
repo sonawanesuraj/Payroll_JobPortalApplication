@@ -2,9 +2,11 @@ package com.app.dto;
 
 public interface IJobListDto {
 
-	public Long getId();
+	public Long getJobId();
 
-	public String getJobName();
+	public String getJobTitle();
+
+	public Long getRecruiterId();
 
 	public String getDescription();
 

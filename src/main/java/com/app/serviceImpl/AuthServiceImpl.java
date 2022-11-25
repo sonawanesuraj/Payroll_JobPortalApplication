@@ -1,5 +1,6 @@
 package com.app.serviceImpl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.app.dto.ForgotPasswordConfirmDto;
@@ -16,6 +17,8 @@ import com.app.util.CacheOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -56,9 +59,30 @@ public class AuthServiceImpl implements AuthInterface, UserDetailsService {
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		UserEntity userEntity = new UserEntity();
 
-		userEntity = this.authRepository.findByEmailContainingIgnoreCase(email);
+		if (!cache.isKeyExist(email, email)) {
 
-		if (userEntity.getEmail().isEmpty()) {
+			userEntity = this.authRepository.findByEmailContainingIgnoreCase(email);
+			cache.addInCache(email, email, userEntity.toString());
+		} else {
+
+			String jsonString = (String) cache.getFromCache(email, email);
+			JSONObject jsonObject = null;
+			try {
+				jsonObject = new JSONObject(jsonString);
+				userEntity.setId(Long.parseLong(jsonObject.getString("id")));
+				userEntity.setEmail(jsonObject.getString("email"));
+				userEntity.setPassword(jsonObject.getString("password"));
+
+			} catch (JSONException e) {
+				userEntity = null;
+			}
+
+		}
+
+		if (userEntity == null)
+
+		{
+
 			throw new ResourceNotFoundException("User OR Password not found");
 		}
 
@@ -75,7 +99,7 @@ public class AuthServiceImpl implements AuthInterface, UserDetailsService {
 
 	private ArrayList<SimpleGrantedAuthority> getAuthority(UserEntity user) {
 		ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-		if ((user.getId() + "permission") != null) {
+		if (!cache.isKeyExist(user.getId() + "permission", user.getId() + "permission")) {
 			ArrayList<SimpleGrantedAuthority> authorities1 = new ArrayList<>();
 
 			ArrayList<String> permissions = this.rolePermissionInterface.getPermissionByUserId(user.getId());
@@ -103,6 +127,20 @@ public class AuthServiceImpl implements AuthInterface, UserDetailsService {
 		LOG.info("AuthServiceImpl >> forgotPasswordConfirm() >> Done password changed");
 		return false;
 
+	}
+
+	@Override
+	public ArrayList<String> getUserPermission(Long userId) throws IOException {
+		ArrayList<String> permissions;
+		if (!cache.isKeyExist(userId + "permission", userId + "permission")) {
+			permissions = this.rolePermissionInterface.getPermissionByUserId(userId);
+			System.err.println("ADD TO CACHE");
+			cache.addInCache(userId + "permission", userId + "permission", permissions);
+		} else {
+			permissions = (ArrayList<String>) cache.getFromCache(userId + "permission", userId + "permission");
+			System.err.println("FROM CATCHE");
+		}
+		return permissions;
 	}
 
 }

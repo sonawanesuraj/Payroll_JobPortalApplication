@@ -44,7 +44,7 @@ public class UserJobController {
 		}
 	}
 
-	@PreAuthorize("hasRole('candidateJobView')")
+	@PreAuthorize("hasRole('userJobView')")
 	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> getUserJob(@RequestParam(defaultValue = "") String userId,
 			@RequestParam(defaultValue = "") String jobId, @RequestParam(defaultValue = "1") String pageNumber,

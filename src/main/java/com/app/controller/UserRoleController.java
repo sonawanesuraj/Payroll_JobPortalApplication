@@ -33,6 +33,7 @@ public class UserRoleController {
 	@Autowired
 	private UserRoleInterface userRoleInterface;
 
+	@PreAuthorize("hasRole('userRoleAdd')")
 	@PostMapping()
 	public ResponseEntity<?> addUserRole(@RequestBody UserRoleDto userRoleDto) {
 		try {
@@ -49,16 +50,16 @@ public class UserRoleController {
 
 	}
 
+	@PreAuthorize("hasRole('UserRoleEdit')")
 	@PutMapping("/{id}")
 	public UserRoleDto updateUserRole(@PathVariable Long id, @RequestBody UserRoleDto userRoleDto) {
 		return this.userRoleInterface.updateRoleOrUser(id, userRoleDto);
 
 	}
 
-	@PreAuthorize("hasRole('CandidateRecruiterDelete')")
-
-	@DeleteMapping("/CandidateRecruiterDelete/{id}")
-	public ResponseEntity<?> deleteUserTopic(@PathVariable Long id) {
+	@PreAuthorize("hasRole('UserRoleDelete')")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteUserRoleById(@PathVariable Long id) {
 
 		try {
 			UserRoleEntity userTopicEntity = this.userRoleInterface.deleteUserRole(id);
@@ -73,6 +74,7 @@ public class UserRoleController {
 
 	}
 
+	@PreAuthorize("hasRole('UserRoleView')")
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getUserRoleById(@PathVariable Long id) {
 		try {
@@ -86,6 +88,7 @@ public class UserRoleController {
 
 	}
 
+	@PreAuthorize("hasRole('UserRoleList')")
 	@GetMapping(ApiUrls.GET_ALL)
 	public ResponseEntity<?> recruiterList(@RequestParam(defaultValue = "") String userId,
 			@RequestParam(defaultValue = "") String roleId, @RequestParam(defaultValue = "1") String pageNo,

@@ -1,7 +1,5 @@
 package com.app.serviceImpl;
 
-import java.util.List;
-
 import com.app.dto.IJobListDto;
 import com.app.dto.JobDto;
 import com.app.entities.JobEntity;
@@ -21,13 +19,13 @@ public class JobServiceImpl implements JobInterface {
 	@Autowired
 	private JobRepository jobRepository;
 
-	public Page<IJobListDto> getAllJobs(String search, String pageNo, String pageSize) {
+	public Page<IJobListDto> getAllJobs(String userId, String jobId, String search, String pageNo, String pageSize) {
 
 		Pageable pageable = new Pagination().getPagination(pageNo, pageSize);
 		Page<IJobListDto> iJobListDto;
 		if ((search == "") || (search == null) || (search.length() == 0)) {
 
-			iJobListDto = jobRepository.findByOrderByIdDesc(pageable, IJobListDto.class);
+			iJobListDto = jobRepository.findByOrderByIdDesc(userId, jobId, pageable, IJobListDto.class);
 		} else {
 
 			iJobListDto = jobRepository.findByJobNameIgnoreCaseContaining(search, pageable, IJobListDto.class);
@@ -61,13 +59,6 @@ public class JobServiceImpl implements JobInterface {
 		this.jobRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Resource Not Found for this Id "));
 		jobRepository.deleteById(id);
-
-	}
-
-	@Override
-	public List<IJobListDto> getJobById(Long id) {
-		List<IJobListDto> iJobListDto;
-		return iJobListDto = this.jobRepository.findById(id, IJobListDto.class);
 
 	}
 

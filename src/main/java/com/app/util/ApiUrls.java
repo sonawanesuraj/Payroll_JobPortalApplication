@@ -11,6 +11,7 @@ public class ApiUrls {
 	public static final String USERJOB = "/userjob";
 	public static final String USERROLE = "/userrole";
 	public static final String ROLEPERMISSION = "/role-permission";
+	public static final String EXCEL = "/excel";
 	public static final String AUTH = "/auth";
 	public static final String LOGIN = AUTH + "/login";
 	public static final String REGISTER = AUTH + "/register";

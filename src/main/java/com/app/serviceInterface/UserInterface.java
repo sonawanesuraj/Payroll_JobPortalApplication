@@ -9,7 +9,7 @@ public interface UserInterface {
 
 	public List<IUserListDto> getUserById(Long id);
 
-	UserDto updateUser(Long id, UserDto userDto);
+	public UserDto updateUser(Long id, UserDto userDto);
 
 	void deleteUser(Long id);
 

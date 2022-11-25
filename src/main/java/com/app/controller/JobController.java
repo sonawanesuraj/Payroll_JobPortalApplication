@@ -1,7 +1,5 @@
 package com.app.controller;
 
-import java.util.List;
-
 import com.app.dto.ErrorResponseDto;
 import com.app.dto.IJobListDto;
 import com.app.dto.JobDto;
@@ -73,7 +71,7 @@ public class JobController {
 
 	}
 
-	@PreAuthorize("hasRole('JobDelete')")
+	@PreAuthorize("hasRole('jobDelete')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteJob(@PathVariable(name = "id") Long id) throws ResourceNotFoundException {
 		try {
@@ -86,24 +84,12 @@ public class JobController {
 		}
 	}
 
-	@GetMapping("/{id}")
-	public ResponseEntity<?> getJobById(@PathVariable("id") Long id) {
-		try {
-			List<IJobListDto> jobDto = this.jobInterface.getJobById(id);
-			return new ResponseEntity<>(new SuccessResponseDto("Job Get Successfully", "Success", jobDto),
-					HttpStatus.OK);
-		} catch (ResourceNotFoundException e) {
-			return new ResponseEntity<>(new ErrorResponseDto("job Not found", "Please Enter Correct Id "),
-					HttpStatus.NOT_FOUND);
-		}
-
-	}
-
 	@PreAuthorize("hasRole('jobView')")
 	@GetMapping(ApiUrls.GET_ALL)
-	public ResponseEntity<?> getAllJob(@RequestParam(defaultValue = "") String search,
-			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "5") String pageSize) {
-		Page<IJobListDto> job = jobServiceImpl.getAllJobs(search, pageNo, pageSize);
+	public ResponseEntity<?> getAllJob(@RequestParam(defaultValue = "") String userId,
+			@RequestParam(defaultValue = "") String jobId, @RequestParam(defaultValue = "") String search,
+			@RequestParam(defaultValue = "1") String pageNo, @RequestParam(defaultValue = "10") String pageSize) {
+		Page<IJobListDto> job = jobServiceImpl.getAllJobs(userId, jobId, search, pageNo, pageSize);
 
 		if (job.getTotalElements() != 0) {
 			return new ResponseEntity<>(new SuccessResponseDto("All job get Successfully", "Success", job.getContent()),

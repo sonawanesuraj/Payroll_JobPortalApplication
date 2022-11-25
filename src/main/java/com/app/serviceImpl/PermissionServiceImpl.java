@@ -41,7 +41,8 @@ public class PermissionServiceImpl implements PermissionInterface {
 
 	@Override
 	public PermissionDto updatePermission(Long id, PermissionDto permissionDto) {
-		PermissionEntity permissionEntity = this.permissionRepository.findById(id).orElseThrow();
+		PermissionEntity permissionEntity = this.permissionRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Permission Id Not Found"));
 		permissionEntity.setActionName(permissionDto.getActionName());
 		permissionEntity.setDescription(permissionDto.getDescription());
 		permissionEntity.setMethod(permissionDto.getMethod());

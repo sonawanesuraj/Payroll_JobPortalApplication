@@ -1,7 +1,10 @@
 package com.app.repository;
 
+import java.util.List;
+
 import com.app.dto.EmailMsg;
 import com.app.dto.IListUserJobDto;
+import com.app.dto.IListUsersJobDto;
 import com.app.dto.IUserJobListDto;
 import com.app.entities.UserJobEntity;
 
@@ -39,5 +42,10 @@ public interface UserJobRepository extends JpaRepository<UserJobEntity, Long> {
 
 	@Query(value = "select u.id as userId,u.user_Name as UserName,j.id as JobId,j.job_title,uj.id as user_JobId from user_job uj inner join job j on uj.id =j.id inner join users u on u.id=uj.id", nativeQuery = true)
 	Page<IUserJobListDto> findByOrderByIdDesc(Pageable pageable, Class<IUserJobListDto> class1);
+
+	@Query(value = "select u.id as Id, u.user_name as UserName,j.job_title as JobTitle  from user_job uj \r\n"
+			+ "join users u on u.id=uj.user_id and u.is_active= true\r\n"
+			+ "join job j on j.id = uj.job_id and j.is_active =true and uj.is_active=true\r\n", nativeQuery = true)
+	List<IListUsersJobDto> getUserAppliedJobList();
 
 }

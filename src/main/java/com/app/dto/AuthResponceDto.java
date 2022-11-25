@@ -1,6 +1,8 @@
 package com.app.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuthResponceDto implements Serializable {
 
@@ -11,22 +13,42 @@ public class AuthResponceDto implements Serializable {
 
 	private String jwtToken;
 
+	private ArrayList<String> permission;
+
 	private String email;
 
 	private String name;
 
 	private Long id;
 
-	public AuthResponceDto(String jwtToken, String email, String name, Long id) {
+	private List<String> roles;
+
+	public AuthResponceDto(String jwtToken, ArrayList<String> permission, String email, String name, Long id,
+			List<String> roles) {
 		super();
 		this.jwtToken = jwtToken;
+		this.permission = permission;
 		this.email = email;
 		this.name = name;
 		this.id = id;
+		this.roles = roles;
+
+	}
+
+	public String getJwtToken() {
+		return jwtToken;
 	}
 
 	public void setJwtToken(String jwtToken) {
 		this.jwtToken = jwtToken;
+	}
+
+	public ArrayList<String> getPermission() {
+		return permission;
+	}
+
+	public void setPermission(ArrayList<String> permission) {
+		this.permission = permission;
 	}
 
 	public String getEmail() {
@@ -53,8 +75,16 @@ public class AuthResponceDto implements Serializable {
 		this.id = id;
 	}
 
-	public String getJwtToken() {
-		return jwtToken;
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

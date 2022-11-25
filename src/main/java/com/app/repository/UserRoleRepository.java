@@ -6,6 +6,8 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import com.app.dto.IListUserRole;
+import com.app.dto.IListUsersRoleDto;
+import com.app.dto.IRoleListDto;
 import com.app.entities.UserRoleEntity;
 
 import org.springframework.data.domain.Page;
@@ -49,5 +51,13 @@ public interface UserRoleRepository extends JpaRepository<UserRoleEntity, Long> 
 	ArrayList<UserRoleEntity> getRolesOfUser(@Param("user_id") Long userId);
 
 	ArrayList<UserRoleEntity> findUserIdByRoleId(Long userId);
+
+	@Query(value = "select ur.user_id as userId,ur.role_id,r.role_name as roleName from user_role ur inner join roles r on ur.role_id=r.id  where ur.user_id=?", nativeQuery = true)
+	List<IRoleListDto> findRoleByUserId(Long roleId);
+
+	@Query(value = "select u.id as Id,u.email as Email, u.user_name as Users , r.role_name as Role from user_role ur \r\n"
+			+ "join users u on u.id=ur.user_id and u.is_active=true\r\n"
+			+ "join roles r on r.id=ur.role_id and r.is_active=true and ur.is_active=true\r\n", nativeQuery = true)
+	public List<IListUsersRoleDto> getAllUsersRole();
 
 }

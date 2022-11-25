@@ -1,5 +1,8 @@
 package com.app.serviceInterface;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import com.app.dto.ForgotPasswordConfirmDto;
 import com.app.dto.UserDto;
 import com.app.entities.OtpEntity;
@@ -11,4 +14,7 @@ public interface AuthInterface {
 
 	boolean forgotPasswordConfirm(ForgotPasswordConfirmDto passwordConfirmDto, UserEntity userEntity,
 			OtpEntity otpEntity) throws Exception;
+
+	ArrayList<String> getUserPermission(Long userId) throws IOException;
+
 }

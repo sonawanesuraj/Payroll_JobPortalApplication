@@ -20,4 +20,6 @@ public interface UserRoleInterface {
 
 	Page<IListUserRole> getAllUserRole(String userId, String roleId, String pageNumber, String pageSize);
 
+	List<String> getRoleByUserId(Long roleId);
+
 }

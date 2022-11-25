@@ -1,6 +1,8 @@
 package com.app.controller;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -26,6 +28,7 @@ import com.app.serviceImpl.OtpServiceImpl;
 import com.app.serviceInterface.AuthInterface;
 import com.app.serviceInterface.EmailInterface;
 import com.app.serviceInterface.LoggerInterface;
+import com.app.serviceInterface.UserRoleInterface;
 import com.app.util.ApiUrls;
 import com.app.util.PasswordValidator;
 
@@ -66,6 +69,9 @@ public class AuthController {
 
 	@Autowired
 	private OtpServiceImpl OtpserviceImpl;
+
+	@Autowired
+	private UserRoleInterface userRoleInterface;
 
 	@Autowired
 	private OtpRepository otpRepository;
@@ -122,6 +128,10 @@ public class AuthController {
 
 				final String token = this.JwtTokenUtil.generateToken(userDetails);
 
+				ArrayList<String> permissions = authInterface.getUserPermission(user.getId());
+
+				List<String> roles = this.userRoleInterface.getRoleByUserId(user.getId());
+
 				LoggerDto loggerDto = new LoggerDto();
 
 				loggerDto.setToken(token);
@@ -134,8 +144,9 @@ public class AuthController {
 
 				this.loggerInterface.createLogger(loggerDto, userEntity);
 
-				return new ResponseEntity<>(new SuccessResponseDto("Login successfull", "token",
-						new AuthResponceDto(token, userEntity.getEmail(), userEntity.getName(), userEntity.getId())),
+				return new ResponseEntity<>(
+						new SuccessResponseDto("Login successfull", "token", new AuthResponceDto(token, permissions,
+								userEntity.getName(), userEntity.getEmail(), userEntity.getId(), roles)),
 						HttpStatus.OK);
 
 			} else {
